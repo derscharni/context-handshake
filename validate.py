@@ -8,6 +8,26 @@ import sys
 import re
 from pathlib import Path
 
+HIDDEN_CHAR_PATTERN = re.compile(
+    "[\u200b-\u200f\ufeff\u00ad"      # Zero-Width Characters
+    "\u200c\u200d"                      # Zero-Width Joiners
+    "\ufe00-\ufe0f"                     # Variation Selectors
+    "\U000e0000-\U000e007f"             # Tag Characters
+    "\u202a-\u202e\u2066-\u2069"        # Directional Overrides
+    "\u2060-\u2064\u180e]"              # Invisible Characters
+)
+
+
+def check_hidden_chars(text, path):
+    """Check for hidden Unicode characters that could carry prompt injection payloads."""
+    found = HIDDEN_CHAR_PATTERN.findall(text)
+    if not found:
+        return []
+    codepoints = [f"U+{ord(c):04X}" for c in found]
+    return [f"SECURITY: {len(found)} hidden Unicode characters detected: {', '.join(codepoints[:10])}. "
+            f"These can carry invisible prompt injection payloads. Strip before use."]
+
+
 IDENTITY_REQUIRED = ["name", "role", "working-style", "communication", "constraints"]
 IDENTITY_LISTS = ["working-style", "communication", "constraints"]
 
@@ -55,11 +75,10 @@ def parse_frontmatter(text):
 
 def validate_identity(path):
     text = Path(path).read_text()
+    errors = check_hidden_chars(text, path)
     fields = parse_frontmatter(text)
     if fields is None:
-        return ["No YAML frontmatter found"]
-
-    errors = []
+        return errors + ["No YAML frontmatter found"]
     for field in IDENTITY_REQUIRED:
         if field not in fields:
             errors.append(f"Missing required field: {field}")
@@ -77,11 +96,10 @@ def validate_identity(path):
 
 def validate_session(path):
     text = Path(path).read_text()
+    errors = check_hidden_chars(text, path)
     fields = parse_frontmatter(text)
     if fields is None:
-        return ["No YAML frontmatter found"]
-
-    errors = []
+        return errors + ["No YAML frontmatter found"]
     for field in SESSION_REQUIRED:
         if field not in fields:
             errors.append(f"Missing required field: {field}")
