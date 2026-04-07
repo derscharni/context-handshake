@@ -35,6 +35,12 @@ That's it. No server. No auth. No SDK. No vendor lock-in. Just structured contex
 2. Copy `session-intent-template.md` for each new session
 3. Point your agent at both files (paste, attach, or reference via system prompt)
 
+Already using a specific tool? See the integration guides:
+
+- [**Claude Code**](integrations/claude-code.md) — Add to `~/.claude/CLAUDE.md`
+- [**ChatGPT**](integrations/chatgpt.md) — Map to Custom Instructions
+- [**Cursor / Copilot**](integrations/cursor-copilot.md) — Drop into `.cursorrules` or `.github/copilot-instructions.md`
+
 ## Spec
 
 See [SPEC.md](SPEC.md) for the full field definitions and validation rules.
