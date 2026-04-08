@@ -78,6 +78,25 @@ Context Handshake isn't trying to replace platform-specific memory systems. It f
 
 Think of it as the layer you carry with you. Your platform memory makes one tool smarter about you. Your Context Handshake makes every tool smarter about you.
 
+## Security
+
+Context Handshake files are text that gets fed to an AI agent. If someone injects hidden Unicode characters into your files — zero-width spaces, invisible formatters, tag characters — those characters are invisible to you but readable by the agent. This is a real attack vector ([steganographic prompt injection](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/)).
+
+The built-in sanitizer strips these characters automatically:
+
+```bash
+# Sanitize before dispatching to any agent
+python3 sanitize.py identity.md session-intent.md
+
+# Or use as a library
+from sanitize import load_handshake
+ctx = load_handshake("identity.md", "session-intent.md")
+# ctx["identity"] and ctx["session_intent"] are clean
+# ctx["warnings"] lists anything that was stripped
+```
+
+The validator (`validate.py`) also checks for hidden characters and warns if found.
+
 ## FAQ
 
 **Why not just use a system prompt?**
