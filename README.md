@@ -2,6 +2,8 @@
 
 AI agents read your context. But they never ask what you actually need. Context Handshake is a lightweight spec for telling agents who you are and what this session is about — before they start guessing.
 
+**Designed for human-to-agent and agent-to-agent context dispatch.** The format is the same whether a human writes the handshake manually or an orchestrating agent generates it automatically.
+
 ## The Problem
 
 Every AI interaction starts with a gap. The agent knows nothing about you — your expertise, your constraints, your communication style, the specific outcome you need. So it guesses. It defaults to generic, over-explained, one-size-fits-all responses. You spend the first five minutes correcting assumptions instead of working.
