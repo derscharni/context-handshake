@@ -99,6 +99,10 @@ ctx = load_handshake("identity.md", "session-intent.md")
 
 The validator (`validate.py`) also checks for hidden characters and warns if found.
 
+## Part of the Trust Stack
+
+Context Handshake is Layer 2 (Authorization and Context) of the [Trust Stack](https://github.com/derscharni/trust-stack). For the full sovereign context layer — sanitizing, compression, routing, and archival — see [membrane](https://github.com/derscharni/membrane).
+
 ## FAQ
 
 **Why not just use a system prompt?**
