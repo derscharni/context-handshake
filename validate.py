@@ -7,25 +7,22 @@ Checks identity.md and session-intent.md against the spec.
 import sys
 import re
 from pathlib import Path
+from sanitize import HIDDEN_PATTERN
 
-HIDDEN_CHAR_PATTERN = re.compile(
-    "[\u200b-\u200f\ufeff\u00ad"      # Zero-Width Characters
-    "\u200c\u200d"                      # Zero-Width Joiners
-    "\ufe00-\ufe0f"                     # Variation Selectors
-    "\U000e0000-\U000e007f"             # Tag Characters
-    "\u202a-\u202e\u2066-\u2069"        # Directional Overrides
-    "\u2060-\u2064\u180e]"              # Invisible Characters
-)
+DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$")
 
 
 def check_hidden_chars(text, path):
     """Check for hidden Unicode characters that could carry prompt injection payloads."""
-    found = HIDDEN_CHAR_PATTERN.findall(text)
+    found = HIDDEN_PATTERN.findall(text)
     if not found:
         return []
     codepoints = [f"U+{ord(c):04X}" for c in found]
-    return [f"SECURITY: {len(found)} hidden Unicode characters detected: {', '.join(codepoints[:10])}. "
-            f"These can carry invisible prompt injection payloads. Strip before use."]
+    preview = ", ".join(codepoints[:10])
+    if len(codepoints) > 10:
+        preview += f", ... ({len(codepoints) - 10} more)"
+    return [f"SECURITY: {len(found)} hidden Unicode characters detected: {preview}. "
+            f"These can carry invisible prompt injection payloads. Run sanitize.py --inplace before use."]
 
 
 IDENTITY_REQUIRED = ["name", "role", "working-style", "communication", "constraints"]
@@ -74,7 +71,7 @@ def parse_frontmatter(text):
 
 
 def validate_identity(path):
-    text = Path(path).read_text()
+    text = Path(path).read_text(encoding="utf-8")
     errors = check_hidden_chars(text, path)
     fields = parse_frontmatter(text)
     if fields is None:
@@ -88,14 +85,14 @@ def validate_identity(path):
     for field in IDENTITY_LISTS:
         if field in fields and not isinstance(fields[field], list):
             errors.append(f"{field} should be a list")
-        elif field in fields and len(fields[field]) == 0:
+        elif field in fields and isinstance(fields[field], list) and len(fields[field]) == 0:
             errors.append(f"{field} list is empty")
 
     return errors
 
 
 def validate_session(path):
-    text = Path(path).read_text()
+    text = Path(path).read_text(encoding="utf-8")
     errors = check_hidden_chars(text, path)
     fields = parse_frontmatter(text)
     if fields is None:
@@ -106,6 +103,12 @@ def validate_session(path):
         elif not fields[field]:
             errors.append(f"Empty required field: {field}")
 
+    if "date" in fields and fields["date"] and not DATE_PATTERN.match(str(fields["date"])):
+        errors.append(
+            f"Invalid date format: '{fields['date']}'. "
+            f"Expected ISO 8601 (e.g. 2026-04-07 or 2026-04-07T14:30)"
+        )
+
     if "session-type" in fields and fields["session-type"] not in SESSION_TYPES:
         errors.append(
             f"Invalid session-type: '{fields['session-type']}'. "
@@ -115,6 +118,8 @@ def validate_session(path):
     for field in SESSION_LISTS:
         if field in fields and not isinstance(fields[field], list):
             errors.append(f"{field} should be a list")
+        elif field in fields and isinstance(fields[field], list) and len(fields[field]) == 0:
+            errors.append(f"{field} list is empty")
 
     return errors
 
@@ -139,7 +144,7 @@ def main():
         elif "session" in name or "intent" in name:
             errors = validate_session(path)
         else:
-            text = p.read_text()
+            text = p.read_text(encoding="utf-8")
             fields = parse_frontmatter(text)
             if fields and "session-type" in fields:
                 errors = validate_session(path)

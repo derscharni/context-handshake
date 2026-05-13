@@ -13,16 +13,21 @@ import sys
 from pathlib import Path
 
 HIDDEN_RANGES = [
-    (0x200B, 0x200F),
-    (0x2060, 0x2064),
-    (0xFE00, 0xFE0F),
-    (0xE0000, 0xE007F),
-    (0x202A, 0x202E),
-    (0x2066, 0x2069),
-    (0xFEFF, 0xFEFF),
-    (0x00AD, 0x00AD),
-    (0x180E, 0x180E),
-    (0x200C, 0x200D),
+    (0x0001, 0x0008),   # C0 controls (before tab)
+    (0x000B, 0x000C),   # VT, FF
+    (0x000E, 0x001F),   # C0 controls (after CR)
+    (0x007F, 0x007F),   # DEL
+    (0x00AD, 0x00AD),   # Soft Hyphen
+    (0x180E, 0x180E),   # Mongolian Vowel Separator
+    (0x200B, 0x200F),   # Zero-Width spaces
+    (0x200C, 0x200D),   # Zero-Width Joiners
+    (0x202A, 0x202E),   # Directional Overrides
+    (0x2028, 0x2029),   # Line/Paragraph Separators (YAML newline injection)
+    (0x2060, 0x2064),   # Invisible Characters
+    (0x2066, 0x2069),   # Directional Isolates
+    (0xFE00, 0xFE0F),   # Variation Selectors
+    (0xFEFF, 0xFEFF),   # BOM / Zero-Width No-Break Space
+    (0xE0000, 0xE007F), # Tag Characters
 ]
 
 HIDDEN_PATTERN = re.compile(
@@ -68,7 +73,9 @@ def load_handshake(identity_path, session_intent_path=None, verbose=False):
 
     if session_intent_path:
         session_intent_path = Path(session_intent_path)
-        if session_intent_path.exists():
+        if not session_intent_path.exists():
+            result["warnings"].append(f"[sanitize] session-intent not found: {session_intent_path}")
+        else:
             content, found = sanitize_file(session_intent_path)
             result["session_intent"] = content
             if found:
@@ -81,17 +88,28 @@ def load_handshake(identity_path, session_intent_path=None, verbose=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: sanitize.py <identity.md> [session-intent.md]")
+    args = [a for a in sys.argv[1:] if not a.startswith("-")]
+    inplace = "--inplace" in sys.argv
+
+    if not args:
+        print("Usage: sanitize.py [--inplace] <identity.md> [session-intent.md]")
+        print("  --inplace  write cleaned content back to the original files")
         sys.exit(1)
-    identity = Path(sys.argv[1])
-    session = Path(sys.argv[2]) if len(sys.argv) > 2 else None
+
+    identity = Path(args[0])
+    session = Path(args[1]) if len(args) > 1 else None
     try:
         ctx = load_handshake(identity, session, verbose=True)
-        if not ctx["warnings"]:
+        dirty = [w for w in ctx["warnings"] if "stripped" in w]
+        if not dirty:
             print("Clean — no hidden characters found")
+        elif inplace:
+            identity.write_text(ctx["identity"], encoding="utf-8")
+            if session and ctx["session_intent"]:
+                session.write_text(ctx["session_intent"], encoding="utf-8")
+            print(f"Sanitized — {len(dirty)} file(s) cleaned in place")
         else:
-            print(f"Sanitized — {len(ctx['warnings'])} file(s) had hidden chars")
+            print(f"WARNING: {len(dirty)} file(s) contain hidden chars — re-run with --inplace to clean")
         sys.exit(0)
     except FileNotFoundError as e:
         print(f"Error: {e}")

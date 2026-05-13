@@ -71,4 +71,23 @@ scope: [what the receiving agent is allowed to do]
 task: [one sentence]
 ```
 
+---
+
+## Security notes
+
+**What this format provides:**
+- A declared record of who authorized the task and at what scope
+- A timestamp for temporal integrity checks
+- A confidence score signalling how much the orchestrating agent trusts its own context
+
+**What this format does NOT provide:**
+- Cryptographic proof of identity — `authorized-by: jens.scharnetzki` is a plaintext claim, not a verified signature. Any agent in the pipeline can write any value here.
+- Tamper-evidence — nothing prevents a compromised intermediate agent from modifying `authorization-scope` or `constraints` before forwarding.
+- Protection against a malicious orchestrating agent — if Agent A is compromised, it can generate a handshake with elevated scope or suppressed constraints.
+
+**Mitigations to consider:**
+- Treat `authorized-by` as a logging field, not an access-control gate. Verify authorization out-of-band (e.g. via the human's session token or a signing key).
+- Fail closed: if the receiving agent cannot verify the handshake's origin, it should apply the most restrictive constraints, not the most permissive.
+- Sanitize this file with `sanitize.py --inplace` before any agent reads it — A2A pipelines are a high-value target for hidden Unicode injection.
+
 *See also: [SPEC.md](../SPEC.md)*

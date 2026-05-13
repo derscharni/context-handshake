@@ -4,10 +4,26 @@ Add your Context Handshake to `~/.claude/CLAUDE.md` so every Claude Code session
 
 ## Setup
 
-Append your identity to your CLAUDE.md:
+Sanitize and append your identity to your CLAUDE.md:
 
 ```bash
-cat identity.md >> ~/.claude/CLAUDE.md
+# Sanitize first — strips hidden Unicode injection payloads
+python3 sanitize.py identity.md
+
+# Then append the clean content
+python3 -c "
+from sanitize import load_handshake
+ctx = load_handshake('identity.md')
+open('~/.claude/CLAUDE.md', 'a').write(ctx['identity'])
+"
+```
+
+Or use the library directly (recommended — no intermediate file):
+
+```python
+from sanitize import load_handshake
+ctx = load_handshake("identity.md")
+# ctx["identity"] is clean — append to CLAUDE.md or pass directly to the agent
 ```
 
 Or reference it:
