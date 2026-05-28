@@ -42,6 +42,9 @@ Already using a specific tool? See the integration guides:
 - [**Claude Code**](integrations/claude-code.md) — Add to `~/.claude/CLAUDE.md`
 - [**ChatGPT**](integrations/chatgpt.md) — Map to Custom Instructions
 - [**Cursor / Copilot**](integrations/cursor-copilot.md) — Drop into `.cursorrules` or `.github/copilot-instructions.md`
+- [**OpenAI Projects**](integrations/openai-projects.md) — Project-level instructions + session-opener pattern
+- [**OpenClaw**](integrations/openclaw.md) — USER.md / task files as context handshake
+- [**A2A Protocol**](integrations/a2a-protocol.md) — Envelope+task pattern for multi-agent pipelines
 
 ## Spec
 
@@ -60,9 +63,11 @@ Checks that all required fields are present and non-empty.
 - [**EXAMPLE.md**](EXAMPLE.md) — Full walkthrough: same prompt with and without Context Handshake
 - [`examples/identity-example.md`](examples/identity-example.md) — Product designer identity
 - [`examples/identity-consumer.md`](examples/identity-consumer.md) — Everyday consumer identity
+- [`examples/jens-identity.md`](examples/jens-identity.md) — Real-profile example: AX Strategist with full framework stack
 - [`examples/session-intent-writing.md`](examples/session-intent-writing.md) — Writing session
 - [`examples/session-intent-technical.md`](examples/session-intent-technical.md) — Technical session
 - [`examples/session-intent-entertainment.md`](examples/session-intent-entertainment.md) — Family movie night
+- [`examples/agent-to-agent-handshake.md`](examples/agent-to-agent-handshake.md) — Agent-to-agent handoff pattern (narrative guide)
 
 ## Where This Fits
 
