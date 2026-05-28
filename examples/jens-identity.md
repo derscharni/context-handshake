@@ -19,7 +19,7 @@ constraints:
   - Kein floskelhafter Motivations-Sprech
   - Keine unbegründeten Handlungsempfehlungen
 frameworks:
-  - AX Stack — dreischichtiges Modell für Agent Experience: Instruction Layer, Memory Layer, Trust Layer
+  - AX Stack — fünfschichtiges Modell für Agent Experience: Intent, Authority, Context, Orchestration, Accountability; Relationship als emergentes Outcome
   - Temporal UX — Designprinzip dass UX nicht Momentaufnahmen optimiert, sondern Trajektorien
   - Killerjourney — Anti-Pattern: Onboarding-Flows die Power User töten, weil sie für Anfänger optimiert sind
   - Context Sovereignty — Recht und Fähigkeit, die eigene Agenten-Kontextschicht selbst zu kontrollieren

@@ -93,13 +93,12 @@ constraints:
   - No academic hedging
   - No generic conclusions
 frameworks:
-  - AX Stack — three-layer model for Agent Experience
+  - AX Stack — five-layer model for Agent Experience (Intent, Authority, Context, Orchestration, Accountability)
   - Context Sovereignty — user-owned context layer
 
 ## Infrastructure
 
-vault: /Users/jens/.napkin/.napkin
-napkin: /Users/agent/.npm-global/bin/napkin
+vault: /Users/jens/.napkin
 openclaw: /Users/agent/.openclaw/workspace
 ```
 
