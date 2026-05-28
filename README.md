@@ -127,6 +127,8 @@ But Karpathy's system has one author, one agent, one trust level. He's alone. Th
 
 **MCP (Model Context Protocol).** Anthropic's protocol for tool integration. Context Handshake is complementary — MCP defines how agents connect to tools, Context Handshake defines what the agent should know about the human before using them.
 
+**[agent-os](https://github.com/derscharni/agent-os).** Context Handshake is the first published module of agent-os, the broader Personal Agent OS infrastructure (context layer, sovereignty layer, dreaming layer). If you want the full umbrella, start there.
+
 ## Article
 
 [Coming soon — Context Handshake: The Missing Layer Between You and Your Agent]
